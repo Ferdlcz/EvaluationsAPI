@@ -1,26 +1,24 @@
 //DEPENDENCES
-const express = require('express');
+const express = require("express");
 const app = express();
+const bodyParser = require("body-parser");
 
 //FILES
-const connectDB = require('./Config/conexion');
-
+const connectDB = require("./Config/conexion");
+const authRoutes = require("./Routes/AuthRoutes");
+const viewUserRoutes = require("./Routes/ViewUserRoutes");
 
 const PORT = process.env.PORT || 3000;
-connectDB()
-    .then(() =>{
-        console.log('Conexion a la base de datos establecida');
-        app.listen(PORT, () =>{
-            console.log(`Servidor escuchando en el puerto ${PORT}`)
-        })
-    }).catch((err) =>{
-        console.log('Error al conectar a la base de datos')
-    })
+connectDB();
 
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
+
+//MIDDLEWARES
+app.use(bodyParser.json());
 
 //ROUTES
 
-
-app.get('/api', (req, res) =>{
-    res.send('Hola mundo!!');
-})
+app.use("/api/auth", authRoutes);
+app.use("/api/viewusers", viewUserRoutes)
