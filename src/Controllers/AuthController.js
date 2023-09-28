@@ -1,7 +1,10 @@
 const User = require("../Models/UserModel");
 const bcrypt = require("bcrypt");
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+
+
+const invalidTokens = [];
 
 const AuthController = {
   register: async (req, res) => {
@@ -77,8 +80,36 @@ const AuthController = {
       console.log('Error al intentar iniciar sesión', error);
       res.status(500).json({ message: 'Error al intentar iniciar sesión' });
     }
-  }
+  },
  
+  logout: async (req, res) =>{
+
+    try{
+
+      // Verificar si existe el encabezado Authorization
+      if (!req.headers.authorization) {
+        return res.status(400).json({ message: 'Encabezado Authorization no proporcionado' });
+      }
+  
+      //Extraer token
+      const token = req.headers.authorization.split(' ')[1];
+  
+      //hacer invalido al token
+      invalidTokens.push(token);
+  
+      res.status(200).json({message: 'Sesion cerrada exitosamente'})
+
+    }catch(error){
+      console.log('Error al cerrar sesion', error);
+      res.status(500).json({message: 'error al cerrar sesion'})
+    }
+    
+  },
+
+  isTokenInvalid: (token) =>{
+    return invalidTokens.includes(token);
+  }
 
 };
+
 module.exports = AuthController;
