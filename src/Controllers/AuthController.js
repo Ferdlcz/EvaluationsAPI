@@ -98,6 +98,8 @@ const AuthController = {
       invalidTokens.push(token);
   
       res.status(200).json({message: 'Sesion cerrada exitosamente'})
+      console.log("Sesion cerrada Exitosamente")
+      console.log(invalidTokens);
 
     }catch(error){
       console.log('Error al cerrar sesion', error);
