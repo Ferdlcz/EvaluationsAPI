@@ -1,7 +1,6 @@
 //DEPENDENCES
 const express = require("express");
 const app = express();
-const bodyParser = require("body-parser");
 
 //FILES
 const connectDB = require("./Config/conexion");
@@ -16,7 +15,7 @@ app.listen(PORT, () => {
 });
 
 //MIDDLEWARES
-app.use(bodyParser.json());
+app.use(express.json());
 
 //ROUTES
 

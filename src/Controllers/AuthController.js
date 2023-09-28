@@ -1,6 +1,7 @@
 const User = require("../Models/UserModel");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken')
 
 const AuthController = {
   register: async (req, res) => {
@@ -15,6 +16,7 @@ const AuthController = {
       }
 
       //encriptar contraseña
+      const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, 10);
 
       //crear nuevo usuario
@@ -35,35 +37,48 @@ const AuthController = {
 
   login: async (req, res) => {
     const { username, password } = req.body;
+
+    const generateRandomKey = (length) => {
+      return crypto.randomBytes(length).toString('hex');
+    };
+    
+    // Genera una clave secreta de 32 caracteres (256 bits)
+    const secretKey = generateRandomKey(16);
+
     try {
+
+      // Verificar si el usuario existe
       const user = await User.findOne({ username });
 
+      // Enviar status 404 si el usuario no existe
       if (!user) {
-        return res
-          .status(404)
-          .json({
-            message: "El usuario no existe o tus datos estan incorrectos!",
-          });
+        return res.status(404).json({ message: 'Usuario no encontrado' });
       }
 
-      const Password = await bcrypt.compare(password, user.password);
+      // Verificar si la contraseña es correcta
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
-      if (!Password) {
-        return res.status(404).json({ message: "Contraseña incorrecta" });
+      //Enviar status 401 si la contraseña es incorrecta
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
 
-      //Generar token
+      // Crear token de autenticación
+      const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
 
-      const token = jwt.sign({ userId: user._id }, "your token", {
-        expiresIn: "1h",
-      });
+      //verificar que los datos se esten enviando correctamente
+      console.log('Username: ', user.username);
+      console.log('Email: ', user.email);
+      console.log('Role: ', user.role);
 
-      res.status(200).json({ token });
+
+      res.status(200).json({ message: 'Has iniciado sesion correctamente!!', token });
     } catch (error) {
-      console.log("Error al iniciar sesion", error);
-      res.status(200).json({ message: "Error al iniciar sesion" });
+      console.log('Error al intentar iniciar sesión', error);
+      res.status(500).json({ message: 'Error al intentar iniciar sesión' });
     }
-  },
-};
+  }
+ 
 
+};
 module.exports = AuthController;
