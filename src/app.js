@@ -1,5 +1,6 @@
 //DEPENDENCES
 const express = require("express");
+const cors = require("cors")
 const app = express();
 
 //FILES
@@ -16,6 +17,14 @@ app.listen(PORT, () => {
 
 //MIDDLEWARES
 app.use(express.json());
+app.use(cors());
+
+app.use((req, res, next) =>{
+  res.setHeader('Access-Control-Allow-Origin', '*'); //PERMITIR TODOS LOS ORIGENES
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  next();
+})
 
 //ROUTES
 

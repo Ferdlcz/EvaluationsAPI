@@ -45,7 +45,7 @@ const AuthController = {
       return crypto.randomBytes(length).toString('hex');
     };
     
-    // Genera una clave secreta de 32 caracteres (256 bits)
+    // Genera una clave secreta
     const secretKey = generateRandomKey(16);
 
     try {
@@ -66,8 +66,15 @@ const AuthController = {
         return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
 
+      const userToken = {
+        userId: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+
       // Crear token de autenticación
-      const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign(userToken, secretKey, { expiresIn: '1h' });
 
       //verificar que los datos se esten enviando correctamente
       console.log('Username: ', user.username);
